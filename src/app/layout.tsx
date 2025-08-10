@@ -28,6 +28,18 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>{children}</Providers>
         <ConfirmPopup /> {/* Add ConfirmPopup here */}
+        <footer className="p-6">
+          <div className="container mx-auto flex justify-center items-center gap-8">
+            <a href="https://github.com/suvincent/drink-rename-ai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+              <i className="pi pi-github"></i>
+              <span>GitHub</span>
+            </a>
+            <a href="https://forms.gle/KRD4JjEkei6JzXJj7" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lg hover:text-green-500 dark:hover:text-green-400 transition-colors">
+              <i className="pi pi-google"></i>
+              <span>Feedback</span>
+            </a>
+          </div>
+        </footer>
       </body>
     </html>
   );
