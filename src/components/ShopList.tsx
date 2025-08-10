@@ -41,7 +41,7 @@ export default function ShopList({ initialShops }: ShopListProps) {
             <Link href="/upload" passHref>
               <Button label="新增店家" icon="pi pi-plus" className="p-button-success" disabled />
             </Link>
-            <Button label="登入" icon="pi pi-sign-in" onClick={() => signIn("google", {redirect: false})} />
+            <Button label="登入" icon="pi pi-sign-in" onClick={() => signIn("google")} />
           </>
         )}
       </div>
@@ -49,8 +49,22 @@ export default function ShopList({ initialShops }: ShopListProps) {
   );
 
   return (
-    <div className="p-8">
-      <Card title={header}>
+    <div className="p-8 flex flex-col gap-8">
+      {/* Introduction Card */}
+      <Card className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-6">
+        <h2 className="text-xl font-bold mb-4">歡迎來到飲料白話文運動網站！</h2>
+        <p className="mb-2">這個網站旨在幫助您將複雜的飲料名稱，轉換為簡單易懂的版本。</p>
+        <p className="mb-2">主要功能包含：</p>
+        <ul className="list-disc list-inside ml-4">
+          <li>上傳菜單截圖或文字內容，AI 自動辨識並建議簡化名稱、價格與說明。</li>
+          <li>管理您的飲料店家與菜單。</li>
+          <li>搜尋店家與菜單品項。</li>
+        </ul>
+        <p className="mt-4">請登入以開始使用所有功能。</p>
+      </Card>
+
+      {/* Main Shop List Card */}
+      <Card title={header} className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-6">
         <div className="mb-4">
           <span className="p-input-icon-left w-full">
             <i className="pi pi-search pl-3" />
@@ -65,7 +79,7 @@ export default function ShopList({ initialShops }: ShopListProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredShops.length > 0 ? (
             filteredShops.map((shop) => (
-              <Card key={shop.id} title={shop.name} className="mb-4">
+              <Card key={shop.id} title={shop.name} className="mb-4 bg-white/50 backdrop-blur-sm border border-white/30">
                 <div className="flex justify-end">
                   <Link href={`/shop/${shop.id}`} passHref>
                     <Button label="查看菜單" icon="pi pi-arrow-right" iconPos="right" />
