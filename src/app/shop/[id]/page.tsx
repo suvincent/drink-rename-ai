@@ -9,12 +9,14 @@ import { Button } from 'primereact/button';
 import ShopMenuTable from '../../../components/ShopMenuTable';
 import { confirmPopup } from 'primereact/confirmpopup'; // Added confirmPopup from primereact/api
 import { Toast } from 'primereact/toast';
+import { useSession } from 'next-auth/react'; // Import useSession
 
 // This component is now a Client Component
 export default function ShopPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const toast = useRef<Toast>(null);
   const shopId = parseInt(params.id, 10);
+  const { status } = useSession(); // Get session status
 
   // State to hold shop data fetched from an API route
   const [shop, setShop] = useState<any>(null); // Using any for simplicity, ideally define Shop type
@@ -93,12 +95,14 @@ export default function ShopPage({ params }: { params: { id: string } }) {
             <Link href="/" passHref>
                 <Button label="返回列表" icon="pi pi-arrow-left" className="p-button-secondary" />
             </Link>
-            <Button
-                label="刪除店家"
-                icon="pi pi-trash"
-                className="p-button-danger"
-                onClick={confirmDeleteShop}
-            />
+            {status === "authenticated" && (
+                <Button
+                    label="刪除店家"
+                    icon="pi pi-trash"
+                    className="p-button-danger"
+                    onClick={confirmDeleteShop}
+                />
+            )}
         </div>
     </div>
   );

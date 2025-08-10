@@ -2,7 +2,8 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI, Part } from "@google/generative-ai";
 import prisma from "@/lib/prisma";
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../api/auth/[...nextauth]/route";
 // Helper function to convert base64 image data to a Generative Part
 function fileToGenerativePart(dataUrl: string, mimeType: string): Part {
   // Extract base64 string from data URL
@@ -16,6 +17,55 @@ function fileToGenerativePart(dataUrl: string, mimeType: string): Part {
 }
 
 export async function POST(request: Request) {
+  // User-based Rate Limiting Logic
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user || !session.user.id) {
+    return NextResponse.json({ message: "Unauthorized. Please log in." }, { status: 401 });
+  }
+
+  const userId = session.user.id;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of today
+
+  try {
+    let userDailyRequest = await prisma.userDailyRequest.findUnique({
+      where: {
+        userId_date: {
+          userId: userId,
+          date: today,
+        },
+      },
+    });
+
+    if (!userDailyRequest) {
+      userDailyRequest = await prisma.userDailyRequest.create({
+        data: {
+          userId: userId,
+          date: today,
+          count: 0,
+        },
+      });
+    }
+
+    if (userDailyRequest.count >= 5) { // Max 50 requests per day
+      return NextResponse.json({ message: 'Too Many Requests. Daily limit exceeded. Please try again tomorrow.' }, { status: 429 });
+    }
+
+    await prisma.userDailyRequest.update({
+      where: {
+        id: userDailyRequest.id,
+      },
+      data: {
+        count: userDailyRequest.count + 1,
+      },
+    });
+  } catch (rateLimitError) {
+    console.error("Rate Limit DB Error:", rateLimitError);
+    return NextResponse.json({ message: "Rate limit service error." }, { status: 500 });
+  }
+  // End User-based Rate Limiting Logic
+
   try {
     const body = await request.json();
     const { shopName, rawMenuContent, imageData } = body;

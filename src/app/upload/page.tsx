@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -9,6 +8,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
 import { useRef } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 
 export default function UploadPage() {
   const [shopName, setShopName] = useState('');
@@ -18,6 +18,17 @@ export default function UploadPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const toast = useRef<Toast>(null);
+
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <div className="p-8 text-center">載入中...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    signIn("google", {redirect: false})
+    return null; // Or a loading spinner/message
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

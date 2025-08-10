@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 interface Shop {
   id: number;
@@ -17,6 +18,7 @@ interface ShopListProps {
 
 export default function ShopList({ initialShops }: ShopListProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const { data: session, status } = useSession();
 
   const filteredShops = initialShops.filter(shop =>
     shop.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -25,9 +27,24 @@ export default function ShopList({ initialShops }: ShopListProps) {
   const header = (
     <div className="flex justify-content-between align-items-center">
       <h1 className="text-2xl font-bold">飲料店列表</h1>
-      <Link href="/upload" passHref>
-        <Button label="新增店家" icon="pi pi-plus" />
-      </Link>
+      <div className="flex align-items-center gap-2">
+        {status === "authenticated" ? (
+          <>
+            <span className="mr-2">歡迎, {session.user?.name || session.user?.email}!</span>
+            <Link href="/upload" passHref>
+              <Button label="新增店家" icon="pi pi-plus" className="p-button-success" />
+            </Link>
+            <Button label="登出" icon="pi pi-sign-out" onClick={() => signOut()} className="p-button-danger" />
+          </>
+        ) : (
+          <>
+            <Link href="/upload" passHref>
+              <Button label="新增店家" icon="pi pi-plus" className="p-button-success" disabled />
+            </Link>
+            <Button label="登入" icon="pi pi-sign-in" onClick={() => signIn("google", {redirect: false})} />
+          </>
+        )}
+      </div>
     </div>
   );
 

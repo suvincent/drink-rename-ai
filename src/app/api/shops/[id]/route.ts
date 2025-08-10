@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../../api/auth/[...nextauth]/route";
 
 // GET handler to fetch a single shop with its items
 export async function GET(request: Request, { params }: { params: { id: string } }) {
@@ -36,6 +38,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
 // DELETE handler to delete a shop and its items
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user || !session.user.id) {
+      return NextResponse.json({ message: "Unauthorized. Please log in." }, { status: 401 });
+    }
+
     const shopId = parseInt((await params).id, 10);
 
     if (isNaN(shopId)) {
