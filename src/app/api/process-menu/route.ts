@@ -4,6 +4,7 @@ import { GoogleGenerativeAI, Part } from "@google/generative-ai";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../api/auth/[...nextauth]/route";
+
 // Helper function to convert base64 image data to a Generative Part
 function fileToGenerativePart(dataUrl: string, mimeType: string): Part {
   // Extract base64 string from data URL
@@ -153,26 +154,65 @@ export async function POST(request: Request) {
         },
       });
 
-      const seenOriginalNames = new Set<string>();
-      const uniqueParsedMenuItems = parsedMenuItems.filter((item: any) => {
-        if (item.originalName && !seenOriginalNames.has(item.originalName)) {
-          seenOriginalNames.add(item.originalName);
-          return true;
+      const existingMenuItems = await tx.menuItem.findMany({
+        where: { shopId: newShop.id },
+      });
+
+      const existingItemsMap = new Map<string, any>();
+      existingMenuItems.forEach(item => existingItemsMap.set(item.originalName, item));
+
+      const itemsToCreate = [];
+      const itemsToUpdate = [];
+
+      const seenOriginalNamesInBatch = new Set<string>();
+
+      for (const parsedItem of parsedMenuItems) {
+        if (!parsedItem.originalName || seenOriginalNamesInBatch.has(parsedItem.originalName)) {
+          continue; // Skip items without originalName or duplicates within the batch
         }
-        return false;
-      });
+        seenOriginalNamesInBatch.add(parsedItem.originalName);
 
-      const itemsToCreate = uniqueParsedMenuItems.map((item: any) => ({
-        originalName: item.originalName,
-        newName: item.newName || item.originalName,
-        price: item.price || null,
-        description: item.description || null,
-        shopId: newShop.id,
-      }));
+        const existingItem = existingItemsMap.get(parsedItem.originalName);
 
-      await tx.menuItem.createMany({
-        data: itemsToCreate,
-      });
+        if (existingItem) {
+          // Check if any relevant field has changed
+          const hasChanged = (
+            (existingItem.newName !== (parsedItem.newName || parsedItem.originalName)) ||
+            (existingItem.price !== (parsedItem.price || null)) ||
+            (existingItem.description !== (parsedItem.description || null))
+          );
+
+          if (hasChanged) {
+            itemsToUpdate.push({
+              where: { id: existingItem.id },
+              data: {
+                newName: parsedItem.newName || undefined,
+                price: parsedItem.price || undefined,
+                description: parsedItem.description || undefined,
+                updatedById: userId, // Set updatedBy on update
+              },
+            });
+          }
+        } else {
+          // Item does not exist, add to create list
+          itemsToCreate.push({
+            originalName: parsedItem.originalName,
+            newName: parsedItem.newName || parsedItem.originalName,
+            price: parsedItem.price || null,
+            description: parsedItem.description || null,
+            shopId: newShop.id,
+            updatedById: userId, // Set updatedBy on creation
+          });
+        }
+      }
+
+      if (itemsToCreate.length > 0) {
+        await tx.menuItem.createMany({ data: itemsToCreate });
+      }
+
+      if (itemsToUpdate.length > 0) {
+        await Promise.all(itemsToUpdate.map(update => tx.menuItem.update(update)));
+      }
 
       return newShop;
     });

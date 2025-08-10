@@ -16,7 +16,7 @@ export default function ShopPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const toast = useRef<Toast>(null);
   const shopId = parseInt(params.id, 10);
-  const { status } = useSession(); // Get session status
+  const { data: session, status } = useSession(); // Get session data
 
   // State to hold shop data fetched from an API route
   const [shop, setShop] = useState<any>(null); // Using any for simplicity, ideally define Shop type
@@ -51,7 +51,14 @@ export default function ShopPage({ params }: { params: { id: string } }) {
     //@ts-ignore
   }, [shopId, router]);
 
+  const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(email => email.trim()) || [];
+  const isAdmin = session?.user?.email && adminEmails.includes(session.user.email); // Check if user is admin
+
   const deleteShop = async () => {
+    if (!isAdmin) {
+      toast.current?.show({ severity: 'error', summary: '錯誤', detail: '您沒有權限刪除店家。' });
+      return;
+    }
     try {
       const response = await fetch(`/api/shops/${shopId}`, {
         method: 'DELETE',
@@ -95,7 +102,7 @@ export default function ShopPage({ params }: { params: { id: string } }) {
             <Link href="/" passHref>
                 <Button label="返回列表" icon="pi pi-arrow-left" className="p-button-secondary" />
             </Link>
-            {status === "authenticated" && (
+            {status === "authenticated" && isAdmin && (
                 <Button
                     label="刪除店家"
                     icon="pi pi-trash"

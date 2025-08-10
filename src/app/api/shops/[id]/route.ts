@@ -43,6 +43,12 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return NextResponse.json({ message: "Unauthorized. Please log in." }, { status: 401 });
     }
 
+    // Admin check
+    const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim()) || [];
+    if (!session.user.email || !adminEmails.includes(session.user.email)) {
+      return NextResponse.json({ message: "Forbidden. You are not authorized to perform this action." }, { status: 403 });
+    }
+
     const shopId = parseInt((await params).id, 10);
 
     if (isNaN(shopId)) {
