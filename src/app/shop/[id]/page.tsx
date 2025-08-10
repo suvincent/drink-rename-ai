@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, use, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import Link from 'next/link';
@@ -13,9 +13,10 @@ import { useSession } from 'next-auth/react'; // Import useSession
 
 // This component is now a Client Component
 export default function ShopPage({ params }: any) {
+  const { id }: any = use(params); // ✅ unwrap Promise
+  const shopId = parseInt(id, 10);
   const router = useRouter();
   const toast = useRef<Toast>(null);
-  const shopId = parseInt(params.id, 10);
   const { data: session, status } = useSession(); // Get session data
 
   // State to hold shop data fetched from an API route
@@ -26,29 +27,26 @@ export default function ShopPage({ params }: any) {
   // This is a simplified client-side fetch. In a real app, you might use SWR or React Query
   // or pass initial data from a Server Component.
   // For this example, we'll fetch client-side for simplicity after making it a client component.
-  useState(() => {
+  useEffect(() => {
     const fetchShop = async () => {
       if (isNaN(shopId)) {
-        router.push('/404'); // Redirect to 404 if ID is invalid
+        router.push('/404');
         return;
       }
       try {
         const response = await fetch(`/api/shops/${shopId}`);
-        if (!response.ok) {
-          throw new Error('Shop not found');
-        }
+        if (!response.ok) throw new Error('Shop not found');
         const data = await response.json();
         setShop(data);
       } catch (error) {
         console.error('Failed to fetch shop:', error);
-        router.push('/404'); // Redirect to 404 on fetch error
+        router.push('/404');
       } finally {
         setLoading(false);
       }
     };
+  
     fetchShop();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
   }, [shopId, router]);
 
   const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(',').map(email => email.trim()) || [];
