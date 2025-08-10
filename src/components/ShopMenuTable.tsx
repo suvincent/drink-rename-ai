@@ -8,6 +8,7 @@ import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Toast } from 'primereact/toast';
+import { MultiSelect } from 'primereact/multiselect';
 import { useRouter } from 'next/navigation';
 
 interface MenuItem {
@@ -16,6 +17,7 @@ interface MenuItem {
   newName: string;
   price?: number | null;
   description?: string | null;
+  updatedAt?: string | null;
 }
 
 interface ShopMenuTableProps {
@@ -28,6 +30,15 @@ export default function ShopMenuTable({ items }: ShopMenuTableProps) {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const toast = useRef<Toast>(null);
   const router = useRouter();
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(['originalName', 'newName', 'price', 'description']);
+
+  const columns = [
+    { field: 'originalName', header: '原始名稱' },
+    { field: 'newName', header: '簡化名稱' },
+    { field: 'price', header: '價格' },
+    { field: 'description', header: '說明' },
+    { field: 'updatedAt', header: '更新時間' },
+  ];
 
   useEffect(() => {
     setMenuItems(items);
@@ -73,8 +84,21 @@ export default function ShopMenuTable({ items }: ShopMenuTableProps) {
     return new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD' }).format(rowData.price || 0);
   };
 
+  const updatedAtBodyTemplate = (rowData: MenuItem) => {
+    return rowData.updatedAt ? new Date(rowData.updatedAt).toLocaleString('zh-TW') : '';
+  };
+
   const header = (
-    <div className="flex justify-content-end">
+    <div className="flex justify-content-end gap-2">
+      <MultiSelect
+        value={visibleColumns}
+        options={columns}
+        optionLabel="header"
+        optionValue="field"
+        onChange={(e) => setVisibleColumns(e.value)}
+        placeholder="選擇顯示欄位"
+        style={{ width: '200px' }}
+      />
       <span className="p-input-icon-left">
         <i className="pi pi-search pl-3" />
         <InputText
@@ -100,12 +124,14 @@ export default function ShopMenuTable({ items }: ShopMenuTableProps) {
         editMode={session ? "row" : undefined}
         onRowEditComplete={onRowEditComplete}
       >
-        <Column field="originalName" header="原始名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>
-        <Column field="newName" header="簡化名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>
-        <Column field="price" header="價格" body={priceBodyTemplate} sortable editor={(options) => priceEditor(options)} style={{ width: '15%' }}></Column>
-        <Column field="description" header="說明" sortable editor={(options) => textEditor(options)} style={{ width: '35%' }}></Column>
+        {visibleColumns.includes('originalName') && <Column field="originalName" header="原始名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>}
+        {visibleColumns.includes('newName') && <Column field="newName" header="簡化名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>}
+        {visibleColumns.includes('price') && <Column field="price" header="價格" body={priceBodyTemplate} sortable editor={(options) => priceEditor(options)} style={{ width: '15%' }}></Column>}
+        {visibleColumns.includes('description') && <Column field="description" header="說明" sortable editor={(options) => textEditor(options)} style={{ width: '35%' }}></Column>}
+        {visibleColumns.includes('updatedAt') && <Column field="updatedAt" header="更新時間" body={updatedAtBodyTemplate} sortable style={{ width: '20%' }}></Column>}
         {session && <Column rowEditor headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column>}
       </DataTable>
     </>
   );
 }
+

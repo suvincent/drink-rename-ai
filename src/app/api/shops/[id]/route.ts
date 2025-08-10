@@ -18,6 +18,9 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       where: { id: shopId },
       include: {
         items: {
+          include: {
+            updatedBy: true,
+          },
           orderBy: {
             createdAt: 'asc',
           },
