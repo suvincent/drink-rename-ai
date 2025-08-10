@@ -96,8 +96,8 @@ export default function ShopPage({ params }: any) {
   }
 
   const header = (
-    <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">{shop.name} - 菜單</h1>
+    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <h1 className="text-2xl font-bold text-center md:text-left">{shop.name} - 菜單</h1>
         <div className="flex gap-2">
             <Link href="/" passHref>
                 <Button label="返回列表" icon="pi pi-arrow-left" className="p-button-secondary" />
@@ -118,7 +118,7 @@ export default function ShopPage({ params }: any) {
     <>
       <Toast ref={toast} />
       {/* ConfirmDialog is removed from here */}
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <Card title={header}>
           <ShopMenuTable items={shop.items} />
         </Card>

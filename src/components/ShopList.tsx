@@ -26,16 +26,18 @@ export default function ShopList({ initialShops }: ShopListProps) {
   );
 
   const header = (
-    <div className="flex justify-content-between align-items-center">
+    <div className="flex flex-col md:flex-row justify-content-between align-items-center gap-4">
       <h1 className="text-2xl font-bold">飲料店列表</h1>
-      <div className="flex align-items-center gap-2">
+      <div className="flex flex-col md:flex-row align-items-center gap-2">
         {status === "authenticated" ? (
           <>
             <span className="mr-2">歡迎, {session.user?.name || session.user?.email}!</span>
-            <Link href="/upload" passHref>
-              <Button label="新增店家" icon="pi pi-plus" className="p-button-success" />
-            </Link>
-            <Button label="登出" icon="pi pi-sign-out" onClick={() => signOut()} className="p-button-danger" />
+            <div className="flex gap-2">
+              <Link href="/upload" passHref>
+                <Button label="新增店家" icon="pi pi-plus" className="p-button-success" />
+              </Link>
+              <Button label="登出" icon="pi pi-sign-out" onClick={() => signOut()} className="p-button-danger" />
+            </div>
           </>
         ) : (
           <>
@@ -50,9 +52,9 @@ export default function ShopList({ initialShops }: ShopListProps) {
   );
 
   return (
-    <div className="p-8 flex flex-col gap-8">
+    <div className="p-4 md:p-8 flex flex-col gap-4">
       {/* Introduction Card */}
-      <Card className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-6">
+      <Card className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-4 md:p-6">
         <h2 className="text-xl font-bold mb-4">歡迎來到飲料白話文運動網站！</h2>
         <p className="mb-2">這個網站旨在幫助您將複雜的飲料名稱，轉換為簡單易懂的版本。</p>
         <p className="mb-2">主要功能包含：</p>
@@ -65,7 +67,7 @@ export default function ShopList({ initialShops }: ShopListProps) {
       </Card>
 
       {/* Main Shop List Card */}
-      <Card title={header} className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-6">
+      <Card title={header} className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 p-4 md:p-6">
         <div className="mb-4">
           <span className="p-input-icon-left w-full">
             <i className="pi pi-search pl-3" />
@@ -73,14 +75,14 @@ export default function ShopList({ initialShops }: ShopListProps) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="搜尋店家名稱..."
-              className="w-full pl-6" // Added pl-6 here
+              className="w-full pl-6"
             />
           </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"> {/* Changed lg:grid-cols-3 to lg:grid-cols-2 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           {filteredShops.length > 0 ? (
             filteredShops.map((shop) => (
-              <Card key={shop.id} title={shop.name} className="mb-4 bg-white/50 backdrop-blur-sm border border-white/30 flex flex-col min-h-[180px] w-1/5"> {/* Added flex flex-col min-h-[180px] */}
+              <Card key={shop.id} title={shop.name} className="mb-4 bg-white/50 backdrop-blur-sm border border-white/30 flex flex-col min-h-[180px] w-1/1 md:w-1/5">
                 <div className="flex-grow">
                   {shop.contributorCount !== undefined && shop.contributorCount > 0 ? (
                     <span className="text-sm text-gray-600"><i className="pi pi-users mr-1" />貢獻者: {shop.contributorCount} 人</span>
@@ -88,7 +90,7 @@ export default function ShopList({ initialShops }: ShopListProps) {
                     <span className="text-sm text-gray-600"><i className="pi pi-users mr-1" />尚無貢獻者</span>
                   )}
                 </div>
-                <div className="mt-auto text-right pt-2"> {/* Added pt-4 for spacing */}
+                <div className="mt-auto text-right pt-2">
                   <Link href={`/shop/${shop.id}`} passHref>
                     <Button label="查看菜單" icon="pi pi-arrow-right" iconPos="right"  className="w-full"/>
                   </Link>

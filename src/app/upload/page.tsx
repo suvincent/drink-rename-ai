@@ -97,7 +97,7 @@ export default function UploadPage() {
   return (
     <>
     <Toast ref={toast} />
-    <div className="p-8 flex justify-center items-start">
+    <div className="p-4 md:p-8 flex justify-center items-start">
       <Card title="新增飲料店與菜單" className="w-full max-w-2xl">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div>

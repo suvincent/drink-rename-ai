@@ -89,25 +89,29 @@ export default function ShopMenuTable({ items }: ShopMenuTableProps) {
   };
 
   const header = (
-    <div className="flex justify-content-end gap-2">
-      <MultiSelect
-        value={visibleColumns}
-        options={columns}
-        optionLabel="header"
-        optionValue="field"
-        onChange={(e) => setVisibleColumns(e.value)}
-        placeholder="選擇顯示欄位"
-        style={{ width: '200px' }}
-      />
-      <span className="p-input-icon-left">
-        <i className="pi pi-search pl-3" />
-        <InputText
-          value={globalFilterValue}
-          onChange={(e) => setGlobalFilterValue(e.target.value)}
-          className="w-full pl-6"
-          placeholder="搜尋菜單品項..."
+    <div className="flex md:justify-content-end gap-2" style={{ maxWidth: '100%', overflowX: 'auto' }}>
+      <div className="flex gap-2">
+       
+        <span className="p-input-icon-left">
+          <i className="pi pi-search pl-2" />
+          <InputText
+            value={globalFilterValue}
+            onChange={(e) => setGlobalFilterValue(e.target.value)}
+            className="pl-5"
+            placeholder="搜尋菜單品項"
+            style={{ width: '150px' }}
+          />
+        </span>
+        <MultiSelect
+          value={visibleColumns}
+          options={columns}
+          optionLabel="header"
+          optionValue="field"
+          onChange={(e) => setVisibleColumns(e.value)}
+          placeholder="選擇顯示欄位"
+          style={{ width: '150px' }}
         />
-      </span>
+      </div>
     </div>
   );
 
@@ -124,11 +128,11 @@ export default function ShopMenuTable({ items }: ShopMenuTableProps) {
         editMode={session ? "row" : undefined}
         onRowEditComplete={onRowEditComplete}
       >
-        {visibleColumns.includes('originalName') && <Column field="originalName" header="原始名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>}
-        {visibleColumns.includes('newName') && <Column field="newName" header="簡化名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>}
-        {visibleColumns.includes('price') && <Column field="price" header="價格" body={priceBodyTemplate} sortable editor={(options) => priceEditor(options)} style={{ width: '15%' }}></Column>}
-        {visibleColumns.includes('description') && <Column field="description" header="說明" sortable editor={(options) => textEditor(options)} style={{ width: '35%' }}></Column>}
-        {visibleColumns.includes('updatedAt') && <Column field="updatedAt" header="更新時間" body={updatedAtBodyTemplate} sortable style={{ width: '20%' }}></Column>}
+        {visibleColumns.includes('originalName') && <Column field="originalName" header="原始名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%', minWidth:'200px' }}></Column>}
+        {visibleColumns.includes('newName') && <Column field="newName" header="簡化名稱" sortable editor={(options) => textEditor(options)} style={{ width: '20%', minWidth:'200px'}}></Column>}
+        {visibleColumns.includes('price') && <Column field="price" header="價格" body={priceBodyTemplate} sortable editor={(options) => priceEditor(options)} style={{ width: '15%', minWidth:'100px' }}></Column>}
+        {visibleColumns.includes('description') && <Column field="description" header="說明" sortable editor={(options) => textEditor(options)} style={{ width: '35%', minWidth:'600px' }}></Column>}
+        {visibleColumns.includes('updatedAt') && <Column field="updatedAt" header="更新時間" body={updatedAtBodyTemplate} sortable style={{ width: '20%', minWidth:'225px' }}></Column>}
         {session && <Column rowEditor headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column>}
       </DataTable>
     </>
