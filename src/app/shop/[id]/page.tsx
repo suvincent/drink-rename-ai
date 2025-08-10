@@ -12,7 +12,7 @@ import { Toast } from 'primereact/toast';
 import { useSession } from 'next-auth/react'; // Import useSession
 
 // This component is now a Client Component
-export default function ShopPage({ params }: { params: { id: string } }) {
+export default function ShopPage({ params }: any) {
   const router = useRouter();
   const toast = useRef<Toast>(null);
   const shopId = parseInt(params.id, 10);

@@ -9,31 +9,30 @@ import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
 import { useRef } from 'react';
 import { signIn, useSession } from 'next-auth/react';
+import Image from 'next/image'; // Import Image component
 
 export default function UploadPage() {
   const [shopName, setShopName] = useState('');
   const [rawMenuContent, setRawMenuContent] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const toast = useRef<Toast>(null);
 
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   if (status === "loading") {
     return <div className="p-8 text-center">載入中...</div>;
   }
 
   if (status === "unauthenticated") {
-    signIn("google", {redirect: false})
+    signIn("google", {redirect: false}); // Use signIn function
     return null; // Or a loading spinner/message
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImageData(reader.result as string);
@@ -41,7 +40,6 @@ export default function UploadPage() {
       reader.readAsDataURL(file);
       setRawMenuContent(''); // Clear text content if image is selected
     } else {
-      setImageFile(null);
       setImageData(null);
     }
   };
@@ -84,9 +82,14 @@ export default function UploadPage() {
         const errorData = await response.json();
         throw new Error(errorData.message || '發生未知錯誤');
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-        toast.current?.show({ severity: 'error', summary: 'Error', detail: error.message });
+    } catch (error: unknown) { // Changed to unknown
+        let errorMessage = '發生未知錯誤';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        } else if (typeof error === 'object' && error !== null && 'message' in error) {
+            errorMessage = (error as { message: string }).message; // Type assertion for object with message
+        }
+        toast.current?.show({ severity: 'error', summary: 'Error', detail: errorMessage });
         setIsLoading(false);
     }
   };
@@ -120,7 +123,7 @@ export default function UploadPage() {
             {imageData && (
               <div className="mt-4">
                 <p className="mb-2">圖片預覽:</p>
-                <img src={imageData} alt="Menu Preview" className="max-w-full h-auto rounded" />
+                <Image src={imageData} alt="Menu Preview" width={300} height={200} style={{ objectFit: 'contain' }} className="max-w-full h-auto rounded" />
               </div>
             )}
             <p className="text-sm text-gray-500 mt-2">上傳圖片後，文字內容將會被忽略。</p>
@@ -133,10 +136,9 @@ export default function UploadPage() {
             <InputTextarea
               id="rawMenuContent"
               value={rawMenuContent}
-              onChange={(e:any) => {
+              onChange={(e) => {
                 setRawMenuContent(e.target.value);
-                setImageFile(null);
-                setImageData(null);
+                setImageData(null); // Clear image data if text is entered
               }}
               rows={10}
               placeholder="請在此貼上完整的原始菜單內容，例如：
