@@ -5,15 +5,15 @@ import prisma from '@/lib/prisma';
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const id = parseInt(params.id, 10);
+  const params = context.params;
+  const id = parseInt((await params).id, 10);
 
   if (isNaN(id)) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
