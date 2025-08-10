@@ -10,6 +10,7 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 interface Shop {
   id: number;
   name: string;
+  contributorCount?: number; // Add optional contributorCount
 }
 
 interface ShopListProps {
@@ -76,13 +77,20 @@ export default function ShopList({ initialShops }: ShopListProps) {
             />
           </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"> {/* Changed lg:grid-cols-3 to lg:grid-cols-2 */}
           {filteredShops.length > 0 ? (
             filteredShops.map((shop) => (
-              <Card key={shop.id} title={shop.name} className="mb-4 bg-white/50 backdrop-blur-sm border border-white/30">
-                <div className="flex justify-end">
+              <Card key={shop.id} title={shop.name} className="mb-4 bg-white/50 backdrop-blur-sm border border-white/30 flex flex-col min-h-[180px] w-1/5"> {/* Added flex flex-col min-h-[180px] */}
+                <div className="flex-grow">
+                  {shop.contributorCount !== undefined && shop.contributorCount > 0 ? (
+                    <span className="text-sm text-gray-600"><i className="pi pi-users mr-1" />貢獻者: {shop.contributorCount} 人</span>
+                  ) : (
+                    <span className="text-sm text-gray-600"><i className="pi pi-users mr-1" />尚無貢獻者</span>
+                  )}
+                </div>
+                <div className="mt-auto text-right pt-2"> {/* Added pt-4 for spacing */}
                   <Link href={`/shop/${shop.id}`} passHref>
-                    <Button label="查看菜單" icon="pi pi-arrow-right" iconPos="right" />
+                    <Button label="查看菜單" icon="pi pi-arrow-right" iconPos="right"  className="w-full"/>
                   </Link>
                 </div>
               </Card>

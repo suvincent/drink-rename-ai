@@ -6,9 +6,29 @@ export default async function HomePage() {
     orderBy: {
       createdAt: 'desc',
     },
+    include: {
+      items: {
+        select: {
+          updatedById: true,
+        },
+      },
+    },
+  });
+
+  const shopsWithContributorCount = shops.map(shop => {
+    const uniqueContributors = new Set<string>();
+    shop.items.forEach(item => {
+      if (item.updatedById) {
+        uniqueContributors.add(item.updatedById);
+      }
+    });
+    return {
+      ...shop,
+      contributorCount: uniqueContributors.size,
+    };
   });
 
   return (
-    <ShopList initialShops={shops} />
+    <ShopList initialShops={shopsWithContributorCount} />
   );
 }
