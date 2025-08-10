@@ -30,7 +30,7 @@ export default function ShopList({ initialShops }: ShopListProps) {
       <h1 className="text-2xl font-bold">飲料店列表</h1>
       <div className="flex flex-col md:flex-row align-items-center gap-2">
         {status === "authenticated" ? (
-          <>
+          <div className="flex flex-col md:flex-row align-items-center gap-2">
             <span className="mr-2">歡迎, {session.user?.name || session.user?.email}!</span>
             <div className="flex gap-2">
               <Link href="/upload" passHref>
@@ -38,14 +38,14 @@ export default function ShopList({ initialShops }: ShopListProps) {
               </Link>
               <Button label="登出" icon="pi pi-sign-out" onClick={() => signOut()} className="p-button-danger" />
             </div>
-          </>
+          </div>
         ) : (
-          <>
+          <div className="flex md:flex-row align-items-center gap-2">
             <Link href="/upload" passHref>
               <Button label="新增店家" icon="pi pi-plus" className="p-button-success" disabled />
             </Link>
             <Button label="登入" icon="pi pi-sign-in" onClick={() => signIn("google")} />
-          </>
+          </div>
         )}
       </div>
     </div>
