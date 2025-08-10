@@ -49,7 +49,11 @@ export async function POST(request: Request) {
       });
     }
 
-    if (userDailyRequest.count >= 5) { // Max 50 requests per day
+    // Admin check
+    const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim()) || [];
+    const isNotAdmin = !session.user.email || !adminEmails.includes(session.user.email)
+
+    if (isNotAdmin && userDailyRequest.count >= 5) { // Max 50 requests per day
       return NextResponse.json({ message: 'Too Many Requests. Daily limit exceeded. Please try again tomorrow.' }, { status: 429 });
     }
 
